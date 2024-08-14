@@ -4,12 +4,19 @@
 
 This Terraform project demonstrates how to use the AWS WAF "Challenge" action without the integration SDK (Interstitial Interaction). The setup includes an ALB, CloudFront distribution, AutoScaling group, and VPC to simulate a basic web application protected by AWS WAF.
 
+## Skills
+
+- Terraform
+- AWS [VPC, EC2, ALB, CloudFront, WAF]
+
 ## Prerequisites
 
 Before running this project, ensure you have the following:
 
 - An active AWS account
-- A Route 53 hosted zone with a valid domain name
+- A Route 53 hosted zone with a valid domain name. This project will create the subdomain `waf` for this demo.
+  - Example Usage: `domain_name = "michaelgroff.info"`
+  - Subdomain Result: `waf.michaelgroff.info`
 - Terraform installed on your local machine
 
 ## Inputs
@@ -25,9 +32,38 @@ The project requires the following inputs:
 These inputs can be provided in the `terraform.tfvars` file:
 
 ```hcl
+# terraform.tfvars
+# General
+name = "waf-challenge"
 region = "us-east-1"
-domain_name = "example.com"
-zone_id = "ZXXXXXXXXXXXXX"
+default_tags = {
+  "Project" = "waf-challenge"
+  "Environment" = "dev"
+}
+
+# VPC
+azs = ["us-east-1a", "us-east-1b", "us-east-1c"]
+cidr = "10.0.0.0/16"
+public_subnets = ["10.0.0.0/24", "10.0.2.0/24", "10.0.4.0/24"]
+private_subnets = ["10.0.1.0/24", "10.0.3.0/24", "10.0.5.0/24"]
+enable_dns_hostnames = true
+enable_dns_support = true
+enable_nat_gateway = false
+single_nat_gateway = false
+enable_vpn_gateway = false
+
+# AutoScaling Group
+min_size = 1
+max_size = 1
+desired_capacity = 1
+health_check_type = "EC2"
+instance_type = "t3.micro"
+ebs_optimized = true
+enable_monitoring = true
+
+# Domain Information
+domain_name = "REPLACE_WITH_DOMAIN_NAME"
+zone_id = "REPLACE_WITH_ZONE_ID"
 ```
 
 ### Alternative: CLI Input
