@@ -46,6 +46,11 @@ This architecture demonstrates a secure and scalable web application environment
 
 ![Architecture Diagram](./img/WAF_Challenge.png)
 
+### Demo Screenshots
+
+![Root Website](./img/root-index.hml.png)
+![WAF Challenge Response](./img/accounts-index.html.png)
+
 ## Skills
 
 - Terraform
