@@ -4,6 +4,48 @@
 
 This Terraform project demonstrates how to use the AWS WAF "Challenge" action without the integration SDK (Interstitial Interaction). The setup includes an ALB, CloudFront distribution, AutoScaling group, and VPC to simulate a basic web application protected by AWS WAF.
 
+## Architecture
+
+The architecture of this demo project is designed to showcase how AWS WAF's "Challenge" action can be implemented without using the integration SDK. The setup involves multiple AWS services working together to simulate a basic web application environment. Below is a breakdown of the architecture components:
+
+### 1. **VPC (Virtual Private Cloud):**
+
+- **Custom VPC:** A Virtual Private Cloud is created to host all the networking components required for the web application.
+- **Subnets:** The VPC is divided into public and private subnets across three Availability Zones (AZs).
+  - **Public Subnets:** These subnets host the Application Load Balancer (ALB) and provide external access to the web application.
+  - **Private Subnets:** These subnets host the AutoScaling group of EC2 instances, which run the web server.
+
+### 2. **ALB (Application Load Balancer):**
+
+- **Load Balancer:** The ALB distributes incoming HTTP traffic across the EC2 instances in the private subnets.
+- **Security:** The ALB is configured to only accept traffic from the CloudFront distribution using a security group that allows inbound traffic only from CloudFront's managed prefix list. Additionally, the ALB validates the presence of a custom header (`X-WAF-Header`) added by CloudFront. If the header is missing, the ALB returns an "Access Denied" response.
+
+### 3. **CloudFront Distribution:**
+
+- **Content Delivery Network (CDN):** CloudFront is used as a CDN to serve content globally with low latency.
+- **Custom Origin:** The ALB is set as the custom origin for CloudFront, ensuring that all requests to the application go through CloudFront.
+- **Custom Headers:** CloudFront adds a custom header (`X-WAF-Header`) to each request before forwarding it to the ALB. This header is validated by the ALB to ensure that traffic is coming from the trusted CloudFront distribution.
+
+### 4. **AutoScaling Group (ASG):**
+
+- **EC2 Instances:** The ASG manages a group of EC2 instances running a simple web server. For this demo environment, the minimum, maximum, and desired capacities are all set to 1, ensuring that only one instance is running at any time.
+- **Health Checks:** The ASG is configured with health checks to ensure that only healthy instances receive traffic.
+
+### 5. **WAF (Web Application Firewall):**
+
+- **Challenge Rule:** AWS WAF is configured with a challenge rule that silently verifies if the client is a legitimate browser, without involving the end user. This challenge is run in the background and is useful for filtering out bots while providing a seamless experience for users.
+- **Integration with CloudFront:** The WAF is associated with the CloudFront distribution, allowing it to filter and challenge traffic before it reaches the ALB.
+
+### 6. **Route 53:**
+
+- **DNS Management:** Amazon Route 53 is used for DNS management. A subdomain (`waf.example.com`) is created to route traffic to the CloudFront distribution.
+
+This architecture demonstrates a secure and scalable web application environment with AWS services, emphasizing the use of AWS WAF's "Challenge" action to protect sensitive resources and ensure that only legitimate traffic reaches the application.
+
+### Diagram
+
+![Architecture Diagram](./img/WAF_Challenge.png)
+
 ## Skills
 
 - Terraform
@@ -105,16 +147,6 @@ This method is useful when you don't want to modify the terraform.tfvars file or
    ```bash
    terraform apply
    ```
-
-## Architecture
-
-The architecture includes the following components:
-
-- **VPC:** Custom VPC with public and private subnets.
-- **ALB:** Application Load Balancer with a custom HTTP listener and a redirect to HTTPS.
-- **CloudFront:** Distribution with a custom origin pointing to the ALB.
-- **AutoScaling Group:** A group of EC2 instances running a simple web server.
-- **WAF:** Web Application Firewall with a challenge rule protecting sensitive paths.
 
 ## Cleaning Up
 

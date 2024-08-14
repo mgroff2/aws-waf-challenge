@@ -19,7 +19,7 @@ module "alb" {
   }
 
   listeners = {
-    http-https-redirect = {
+    http-waf = {
       port     = 80
       protocol = "HTTP"
       fixed_response = {
