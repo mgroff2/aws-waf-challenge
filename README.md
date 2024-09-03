@@ -66,6 +66,17 @@ Before running this project, ensure you have the following:
   - Subdomain Result: `waf.michaelgroff.info`
 - Terraform installed on your local machine
 
+### Terraform S3 Backend Initialization:
+
+```bash
+terraform init \
+  -backend-config="bucket=<my-terraform-backend>" \
+  -backend-config="key=<my-waf-challenge>" \
+  -backend-config="region=<us-east-1>" \
+  -backend-config="kms_key_id=alias/<my-terraform-backend>" \
+  -backend-config="encrypt=true"
+```
+
 ## Inputs
 
 The project requires the following inputs:
